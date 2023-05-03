@@ -16,20 +16,27 @@ data_with_outliers <- c(rnorm(n * (1 - fraction_of_outlier), mean = mu, sd = sig
 # use median abs dev to find outliers in data
 mad <- median(abs(data_with_outliers - median(data_with_outliers)))
 outlier <- which(abs(data_with_outliers - median(data_with_outliers)) > 3 * mad)
+outlier2 <- which(abs(data_with_outliers - median(data_with_outliers)) > 4 * mad)
 
 # replace the outliers by swapping them for the median values of data 
 data_without_outliers <- data_with_outliers # create new data set based of prev.
 data_without_outliers[outlier] <- median(data_with_outliers) # replace outliers
 
+data_without_outliers2 <- data_with_outliers 
+data_without_outliers2[outlier2] <- median(data_with_outliers) 
+
 # do t-tests, get p values and calc mean for both datasets
 t_with_outliers <- t.test(data_with_outliers, mu = mu)# do t tests
 t_without_outliers <- t.test(data_without_outliers, mu = mu)
+t_without_outliers <- t.test(data_without_outliers2, mu = mu)
 
 p_with_outliers <- t_with_outliers$p.value # get p vals from t tests
 p_without_outliers <- t_without_outliers$p.value 
+p_without_outliers2 <- t_without_outliers2$p.value
 
 mean_with_outliers <- mean(data_with_outliers) # get means 
 mean_without_outliers <- mean(data_without_outliers) 
+mean_without_outliers2 <- mean(data_without_outliers2) 
 
 # plotting data with outliers
 hist(data_with_outliers, breaks = 20, col = "blue", 
@@ -43,10 +50,17 @@ hist(data_without_outliers, breaks = 20, col = "blue",
 abline(v = mu, col = "red", lwd = 2) # mean height
 abline(v = mean_without_outliers, col = "green", lwd = 2) # mean without outliers
 
+# same plotting for data without outliers2
+hist(data_without_outliers2, breaks = 20, col = "blue", 
+     xlab = "Height", main = "Distribution of data without outliers 2")
+abline(v = mu, col = "red", lwd = 2) # mean height
+abline(v = mean_without_outliers2, col = "green", lwd = 2) # mean without outliers
+
 
 # print p vals for both data sets
 cat("p-value of t-test on data with outliers:", p_with_outliers, "\n")
 cat("p-value of t-test on data without outliers:", p_without_outliers, "\n")
+cat("p-value of t-test on data without outliers:", p_without_outliers2, "\n")
 
 if (p_without_outliers < 0.05 & p_with_outliers >= 0.05) {
   cat("Removing outliers leads to a statistically significant difference in the mean height
